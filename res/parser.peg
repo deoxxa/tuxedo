@@ -1,0 +1,122 @@
+start = atom*
+
+atom = raw / print / logic / comment
+
+_ = [\r\n\t ]
+__ = _*
+
+raw = d:([^\{] / ("{" [^\{%#]))+ {
+  return {
+    type: "raw",
+    data: d.map(function(e) {
+      if (typeof e === "object" && e instanceof Array) {
+        return e.join("");
+      } else {
+        return e;
+      }
+    }).join(""),
+  };
+}
+
+identifier = first:[A-Za-z_] rest:[A-Za-z0-9_]* {
+  return {
+    type: "identifier",
+    value: [first].concat(rest).join(""),
+  };
+}
+
+string = "\"" value:([^"\\] / "\\\"" / "\\\\")+ "\"" {
+  return {
+    type: "string",
+    value: value.join(""),
+  };
+}
+
+number = value:([0-9]+(.[0-9]+)?) {
+  return {
+    type: "number",
+    value: parseFloat(value.join(""))
+  };
+}
+
+boolean = value:("true" / "false") {
+  return {
+    type: "boolean",
+    value: value === "true"
+  };
+}
+
+array = "[" __ first:literal rest:(__ "," __ item:literal { return item; })* __ "]" {
+  return {
+    type: "array",
+    items: [first].concat(rest),
+  };
+}
+
+literal = identifier / string / number / boolean / array
+
+expression = logic_expression
+
+logic_expression
+  = left:comparison_expression __ operator:("&&" / "||") __ right:logic_expression { return {type: "logic_expression", operator: operator, left: left, right: right}; }
+  / comparison_expression
+
+comparison_expression
+  = left:mathematic_expression __ operator:("==" / "!=" / ">" / "<" / ">=" / "<=") __ right:comparison_expression { return {type: "comparison_expression", operator: operator, left: left, right: right}; }
+  / mathematic_expression
+
+mathematic_expression
+  = left:comparable_expression __ operator:("+" / "-" / "*" / "/") __ right:mathematic_expression { return {type: "mathematic_expression", operator: operator, left: left, right: right}; }
+  / comparable_expression
+
+comparable_expression
+  = boolean
+  / string
+  / number
+  / member_expression
+  / "(" __ expression:expression __ ")" { return expression; }
+
+member_expression = base:(primary_expression) accessors:(__ "[" __ name:expression __ "]" { return name; } / __ "." __ name:identifier { return { type: "string", value: name.value }; })* {
+  return accessors.reduce(function(i, v) {
+    return {
+      type: "path",
+      base: i,
+      name: v,
+    };
+  }, base);
+}
+
+primary_expression
+  = identifier
+  / array
+  / "(" __ expression:expression __ ")" { return expression; }
+
+tag_print_open = "{{"
+tag_print_close = "}}"
+
+print = tag_print_open __ expression:expression __ tag_print_close {
+  return {
+    type: "print",
+    expression: expression,
+  };
+}
+
+tag_logic_open = "{%"
+tag_logic_close = "%}"
+
+logic = tag_logic_open __ expressions:(expression __)* __ tag_logic_close {
+  return {
+    type: "logic",
+    expressions: expressions.map(function(e) { return e[0]; }),
+  };
+}
+
+tag_comment_open = "{#"
+tag_comment_close = "#}"
+
+comment = tag_comment_open __ content:(.+) __ tag_comment_close {
+  return {
+    type: "comment",
+    content: content.join(""),
+  };
+}

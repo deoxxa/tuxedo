@@ -1,0 +1,25 @@
+{
+  "name": "tuxedo",
+  "version": "0.0.0",
+  "description": "Classy templating library",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/deoxxa/tuxedo.git"
+  },
+  "keywords": [
+    "template",
+    "templating",
+    "stream",
+    "streaming"
+  ],
+  "author": "Conrad Pankoff <deoxxa@fknsrs.biz> (http://www.fknsrs.biz/)",
+  "license": "BSD",
+  "dependencies": {
+    "escodegen": "0.0.9"
+  },
+  "devDependencies": {
+    "pegjs": "~0.7.0"
+  }
+}
