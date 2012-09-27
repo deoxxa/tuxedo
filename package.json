@@ -17,7 +17,8 @@
   "author": "Conrad Pankoff <deoxxa@fknsrs.biz> (http://www.fknsrs.biz/)",
   "license": "BSD",
   "dependencies": {
-    "escodegen": "0.0.9"
+    "escodegen": "0.0.9",
+    "dotty": "0.0.1"
   },
   "devDependencies": {
     "pegjs": "~0.7.0"
