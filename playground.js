@@ -17,7 +17,7 @@ var Compiler = require("./lib/compiler");
 //
 
 // this is almost a writable stream
-var compiler = new Compiler();
+var compiler = new Compiler("testing");
 
 var RawToken = require("./lib/token/raw"), raw_token = new RawToken();
 raw_token.attach(compiler);
